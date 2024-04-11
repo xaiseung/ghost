@@ -5,8 +5,61 @@ import glob
 import os
 import os.path as osp
 import cv2
-from insightface.model_zoo import model_zoo
+#from insightface.model_zoo import model_zoo
 from insightface.utils import face_align
+
+import os
+import os.path as osp
+import glob
+import onnxruntime
+from insightface.model_zoo.arcface_onnx import *
+from insightface.model_zoo.scrfd import *
+
+
+class ModelRouter:
+    def __init__(self, onnx_file):
+        self.onnx_file = onnx_file
+
+    def get_model(self):
+        session = onnxruntime.InferenceSession(self.onnx_file, None, providers=["CUDAExecutionProvider"])
+        input_cfg = session.get_inputs()[0]
+        input_shape = input_cfg.shape
+        outputs = session.get_outputs()
+        #print(input_shape)
+        if len(outputs)>=5:
+            return SCRFD(model_file=self.onnx_file, session=session)
+        elif input_shape[2]==112 and input_shape[3]==112:
+            return ArcFaceONNX(model_file=self.onnx_file, session=session)
+        else:
+            raise RuntimeError('error on model routing')
+
+def find_onnx_file(dir_path):
+    if not os.path.exists(dir_path):
+        return None
+    paths = glob.glob("%s/*.onnx" % dir_path)
+    if len(paths) == 0:
+        return None
+    paths = sorted(paths)
+    return paths[-1]
+
+def get_model(name, **kwargs):
+    root = kwargs.get('root', '~/.insightface/models')
+    root = os.path.expanduser(root)
+    if not name.endswith('.onnx'):
+        model_dir = os.path.join(root, name)
+        model_file = find_onnx_file(model_dir)
+        if model_file is None:
+            return None
+    else:
+        model_file = name
+    assert osp.isfile(model_file), 'model should be file'
+    router = ModelRouter(name)
+    model = router.get_model()
+    #print('get-model for ', name,' : ', model.taskname)
+    return model
+
+
+
 
 __all__ = ['Face_detect_crop', 'Face']
 
@@ -29,7 +82,7 @@ class Face_detect_crop:
             if onnx_file.find('_selfgen_')>0:
                 #print('ignore:', onnx_file)
                 continue
-            model = model_zoo.get_model(onnx_file)
+            model = get_model(onnx_file)
             if model.taskname not in self.models:
                 print('find model:', onnx_file, model.taskname)
                 self.models[model.taskname] = model
