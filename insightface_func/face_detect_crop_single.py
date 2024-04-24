@@ -139,3 +139,41 @@ class Face_detect_crop:
         align_img = cv2.warpAffine(img, M, (crop_size, crop_size), borderValue=0.0)
         
         return [align_img], [M]
+    def get_crop_and_kps(self, img, crop_size, max_num=0):
+        bboxes, kpss = self.det_model.detect(img,
+                                             threshold=self.det_thresh,
+                                             max_num=max_num,
+                                             metric='default')
+        if bboxes.shape[0] == 0:
+            return None
+        # ret = []
+        # for i in range(bboxes.shape[0]):
+        #     bbox = bboxes[i, 0:4]
+        #     det_score = bboxes[i, 4]
+        #     kps = None
+        #     if kpss is not None:
+        #         kps = kpss[i]
+        #     M, _ = face_align.estimate_norm(kps, crop_size, mode ='None') 
+        #     align_img = cv2.warpAffine(img, M, (crop_size, crop_size), borderValue=0.0)
+        # for i in range(bboxes.shape[0]):
+        #     kps = None
+        #     if kpss is not None:
+        #         kps = kpss[i]
+        #     M, _ = face_align.estimate_norm(kps, crop_size, mode ='None') 
+        #     align_img = cv2.warpAffine(img, M, (crop_size, crop_size), borderValue=0.0)
+
+        det_score = bboxes[..., 4]
+
+        # select the face with the hightest detection score
+        best_index = np.argmax(det_score)
+
+        kps = None
+        if kpss is not None:
+            kps = kpss[best_index]
+        M, _ = face_align.estimate_norm(kps, crop_size, mode ='None') 
+        align_img = cv2.warpAffine(img, M, (crop_size, crop_size), borderValue=0.0)
+        kps_3 = np.ones([kps.shape[0], 3])
+        kps_3[:, :2] = kps
+        morphed_kps = kps_3.dot(M.T)
+
+        return [align_img], [M], [morphed_kps]

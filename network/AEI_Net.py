@@ -94,6 +94,7 @@ class MLAttrEncoder(nn.Module):
         z_attr8 = F.interpolate(z_attr7, scale_factor=2, mode='bilinear', align_corners=True)
         return z_attr1, z_attr2, z_attr3, z_attr4, z_attr5, z_attr6, z_attr7, z_attr8
 
+
     
 class AADGenerator(nn.Module):
     def __init__(self, backbone, c_id=256, num_blocks=2):
@@ -150,5 +151,8 @@ class AEI_Net(nn.Module):
     def get_attr(self, X):
         return self.encoder(X)
 
+    def forward_from_attr(self, attr, z_id):
+        Y = self.generator(attr, z_id)
+        return Y, attr
 
 
