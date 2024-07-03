@@ -4,24 +4,29 @@
 
 cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니다.
 
-1. Clone this repository
+### 1. Clone this repository
   ```bash
   git clone https://github.com/xaiseung/ghost.git
   cd ghost
   git submodule init
   git submodule update
   ```
-2. Install dependent packages
+### 2. Install dependent packages
    
 환경 구축 방식은 2가지가 있습니다.
 
-2-1. conda 사용
+**2-1. conda 사용**
 
-   ```bash
-   conda env create -n ghost_cu114 -f cond_req_cuda114.yaml
-   ```
+  가상환경에 cudatoolkit으로 11.4를 설치합니다.
 
-2-2. pip 사용 (cuda 11.4와 cudnn 8.2.4는 설치했다고 가정)
+  이때 가상환경의 cuda의 위치를 확인하신 뒤 cudnn 8.2.4를 직접 설치하셔야 합니다
+
+  이것이 번거로우시다면 환경 구축 후 cudatoolkit을 지우고 컴퓨터에 설치된 cuda를 이용하시기 바랍니다.
+  ```bash
+  conda env create -n ghost_cu114 -f cond_req_cuda114.yaml
+  ```
+
+**2-2. pip 사용 (cuda 11.4와 cudnn 8.2.4는 설치했다고 가정)**
 
   - 가상 환경 생성 후 다음을 실행
 
@@ -29,12 +34,12 @@ cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니�
    pip install -r requirements_cu114
    ```
   
-3. Download weights
+### 3. Download weights
   ```bash
   sh download_models.sh
   ```
 
-4. (선택) 데이터셋 다운로드 및 전처리
+### 4. (선택) 데이터셋 다운로드 및 전처리
 - [VggFace2](https://www.kaggle.com/datasets/dimarodionov/vggface2) 다운로드
 - 전처리
 ```bash
@@ -48,7 +53,7 @@ cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니�
 
 이해 과정은 원본 깃허브의 `SberSwapInference.ipynb`와 소스코드 내부를 살펴보며 작성했습니다.
 
-실행과정 이해
+### 실행과정 이해
 - `[1]swap_demo.ipynb`
   - 이미지 또는 영상에 얼굴을 치환하고 저장하는 간단한 예제입니다.
 - `[2-1]about_5keypoints.ipynb`
@@ -57,7 +62,7 @@ cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니�
   - source로 치환된 얼굴을 target으로 붙일 때 마스크를 사용하는 과정을 시각화하고
   - 전체 과정을 풀어 써보고 작동해보는 예제입니다.
 
-아이디어 (PCA 기반 변조)
+### 아이디어 (PCA 기반 변조)
 - 전처리된 [VggFace2](https://www.kaggle.com/datasets/dimarodionov/vggface2)가 필요합니다.
 - `[3-1]extract_src_emb_and_pca.ipynb`
   - src 이미지의 임베딩을 추출하고 pca 분석 모델을 저장합니다.
@@ -80,7 +85,7 @@ cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니�
   - TODO: 영상 입력 업로드로 받기 
 
 
-이하 원본 GHOST 리파지토리의 README.md
+### 이하 원본 GHOST 리파지토리의 README.md
 
 
 [[Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9851423)] [[Habr](https://habr.com/ru/company/sberbank/blog/645919/)]
