@@ -26,14 +26,11 @@ def main(args):
                 image_path = os.path.join(d, image_name)
                 image = cv2.imread(image_path)
                 cropped_image, _, kpss = app.get_crop_and_kps(image, crop_size)
-                #cv2.imwrite(os.path.join(dir_to_save, image_name), cropped_image[0])
+                cv2.imwrite(os.path.join(dir_to_save, image_name), cropped_image[0])
                 with open(os.path.join(dir_to_save_kps, os.path.splitext(image_name)[0])+".txt", "w") as file:
                     for i in range(len(kpss[0])):
                         file.write(f"{kpss[0][i, 0]:.2f} {kpss[0][i, 1]:.2f}\n")
-                #print(dir_to_save_kps)
-                #assert False
             except:
-                #assert False
                 pass
         
     

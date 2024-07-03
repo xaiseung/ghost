@@ -1,3 +1,88 @@
+# README of XAISEUNG 
+
+## 1. 준비
+
+cuda 11.4 + cudnn 8.2.4 환경에서 테스트하여 작동을 확인했습니다.
+
+1. Clone this repository
+  ```bash
+  git clone https://github.com/xaiseung/ghost.git
+  cd ghost
+  git submodule init
+  git submodule update
+  ```
+2. Install dependent packages
+   
+환경 구축 방식은 2가지가 있습니다.
+
+2-1. conda 사용
+
+   ```bash
+   conda env create -n ghost_cu114 -f cond_req_cuda114.yaml
+   ```
+
+2-2. pip 사용 (cuda 11.4와 cudnn 8.2.4는 설치했다고 가정)
+
+  - 가상 환경 생성 후 다음을 실행
+
+   ```bash
+   pip install -r requirements_cu114
+   ```
+  
+3. Download weights
+  ```bash
+  sh download_models.sh
+  ```
+
+4. (선택) 데이터셋 다운로드 및 전처리
+- [VggFace2](https://www.kaggle.com/datasets/dimarodionov/vggface2) 다운로드
+- 전처리
+```bash
+  python preprocess_vgg.py --path_to_dataset {PATH_TO_DATASET} --save_path {SAVE_PATH}
+```
+
+
+## 2. 코드 파일 설명
+
+각 실행 과정을 이해하고 추가적인 아이디어(PCA 분석 기반 변조)를 붙이기 위해서 다음 .ipynb 파일들을 만들었습니다.
+
+이해 과정은 원본 깃허브의 `SberSwapInference.ipynb`와 소스코드 내부를 살펴보며 작성했습니다.
+
+실행과정 이해
+- `[1]swap_demo.ipynb`
+  - 이미지 또는 영상에 얼굴을 치환하고 저장하는 간단한 예제입니다.
+- `[2-1]about_5keypoints.ipynb`
+  - 얼굴 크롭 및 정렬에 사용하는 5-key points 시각화하는 예제입니다.
+- `[2-2]about_mask_N_roll_out_process.ipynb`
+  - source로 치환된 얼굴을 target으로 붙일 때 마스크를 사용하는 과정을 시각화하고
+  - 전체 과정을 풀어 써보고 작동해보는 예제입니다.
+
+아이디어 (PCA 기반 변조)
+- 전처리된 [VggFace2](https://www.kaggle.com/datasets/dimarodionov/vggface2)가 필요합니다.
+- `[3-1]extract_src_emb_and_pca.ipynb`
+  - src 이미지의 임베딩을 추출하고 pca 분석 모델을 저장합니다.
+- `[3-2]extract_GAN_tgt_zattr.ipynb`
+  - GAN (U-net)에서 tgt을 입력으로 한 중간 zattr를 추출하여 저장합니다.
+- `[3-3]PCA_GANtgt.ipynb`
+  - 3-2에서 추출한 중간 zattr 값으로 PCA 분석 모델을 만들고 저장합니다.
+- `[3-3B]PCA_GANtgt_alter.ipynb`
+  - 3-2에서 추출한 중간 zattr 값으로 PCA 분석 모델을 만들고 저장합니다.
+  - 이전 코드와 PCA 파라미터가 조금 다릅니다.
+  - doublePCA (각 레이어의 PCA 벡터들을 이어붙인 뒤 다시 PCA)를 위한 코드입니다.
+- `[4-1]modify_src_emb_thru_pca.ipynb`
+  - PCA 모델을 바탕으로 src_emb을 조절하며 결과를 확인하고 그림을 그립니다.
+- `[4-2]modify_zattr_emb_thru_pca.ipynb`
+  - PCA 모델로 zattr emb를 조절하여 결과를 확인하고 그림을 그립니다.
+- `[4-2B]modify_zattr_emb_thru_doublepca.ipynb`
+  - DoublePCA 모델로 zattr emb를 조절하여 결과를 확인하고 그림을 그립니다.
+- `[5]smile_application.ipynb`
+  - 얼굴을 치환하고 target의 zattr를 건드려 웃게 만듭니다.
+  - TODO: 영상 입력 업로드로 받기 
+
+
+이하 원본 GHOST 리파지토리의 README.md
+
+
 [[Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9851423)] [[Habr](https://habr.com/ru/company/sberbank/blog/645919/)]
 
 # 👻 GHOST: Generative High-fidelity One Shot Transfer 
